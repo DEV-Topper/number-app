@@ -2,10 +2,11 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Outfit } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
-import { Analytics } from "@vercel/analytics/react"
 import "@/components/landing-page/styles.css"
 import { Suspense } from "react"
+import dynamic from "next/dynamic"
 
+// Google Font
 const outfit = Outfit({
   subsets: ["latin"],
   display: "swap",
@@ -13,6 +14,7 @@ const outfit = Outfit({
   variable: "--font-outfit",
 })
 
+// Metadata (Server-side)
 export const metadata: Metadata = {
   title: "VirtualSMS - Global Virtual Numbers & eSIM Platform",
   description:
@@ -21,9 +23,16 @@ export const metadata: Metadata = {
     icon: [{ url: "/automatic-favicon-no-bg.png", type: "image/png" }],
     apple: [{ url: "/automatic-favicon-no-bg.png" }],
   },
-    generator: 'v0.app'
+  generator: "v0.app",
 }
 
+// Client-only Analytics (dynamic import)
+const AnalyticsWrapper = dynamic(
+  () => import("@vercel/analytics/react").then(mod => mod.Analytics),
+  { ssr: false }
+)
+
+// Root Layout (Server Component)
 export default function RootLayout({
   children,
 }: {
@@ -33,10 +42,15 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={outfit.className}>
         <Suspense fallback={null}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
             {children}
           </ThemeProvider>
-          <Analytics />
+          <AnalyticsWrapper />
         </Suspense>
       </body>
     </html>
